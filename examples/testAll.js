@@ -2,24 +2,25 @@
  * Runs an ordered set of commands within each of the build directories.
  */
 
-var fs = require('fs')
-var path = require('path')
-var { spawnSync } = require('child_process')
+const fs = require('fs')
+const path = require('path')
+const { spawnSync } = require('child_process')
+const chalk = require('chalk')
 
-var exampleDirs = fs.readdirSync(__dirname).filter((file) => {
+const exampleDirs = fs.readdirSync(__dirname).filter((file) => {
   return fs.statSync(path.join(__dirname, file)).isDirectory()
 })
 
-// Ordering is important here. `yarn install` must come first.
-var cmdArgs = [
-  { cmd: 'yarn', args: [ 'install', '--no-progress' ] },
-  { cmd: 'yarn', args: [ 'test' ] }
+// Ordering is important here. `npm install` must come first.
+const cmdArgs = [
+  { cmd: 'npm', args: [ 'install', '--progress=false' ] },
+  { cmd: 'npm', args: [ 'test' ] }
 ]
 
 for (const dir of exampleDirs) {
   if (dir === 'counter-vanilla') continue
 
-  console.log('==> Testing %s...', dir)
+  console.log(chalk.bold.yellow('\n\n==> Testing %s...\n\n'), dir)
   for (const cmdArg of cmdArgs) {
     // declare opts in this scope to avoid https://github.com/joyent/node/issues/9158
     const opts = {

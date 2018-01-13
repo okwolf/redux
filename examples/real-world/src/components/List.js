@@ -1,4 +1,7 @@
-import React, { Component, PropTypes } from 'react'
+/* eslint-disable no-undef */
+
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
 export default class List extends Component {
   static propTypes = {

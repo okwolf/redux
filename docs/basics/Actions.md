@@ -53,7 +53,7 @@ Finally, we'll add one more action type for changing the currently visible todos
 
 **Action creators** are exactly that—functions that create actions. It's easy to conflate the terms “action” and “action creator,” so do your best to use the proper term.
 
-In Redux action creators simply return an action:
+In Redux, action creators simply return an action:
 
 ```js
 function addTodo(text) {
@@ -89,8 +89,8 @@ dispatch(completeTodo(index))
 Alternatively, you can create a **bound action creator** that automatically dispatches:
 
 ```js
-const boundAddTodo = (text) => dispatch(addTodo(text))
-const boundCompleteTodo = (index) => dispatch(completeTodo(index))
+const boundAddTodo = text => dispatch(addTodo(text))
+const boundCompleteTodo = index => dispatch(completeTodo(index))
 ```
 
 Now you'll be able to call them directly:

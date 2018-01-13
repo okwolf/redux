@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import TodoItem from './TodoItem'
 import Footer from './Footer'
 import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters'
@@ -29,10 +30,13 @@ export default class MainSection extends Component {
     const { todos, actions } = this.props
     if (todos.length > 0) {
       return (
-        <input className="toggle-all"
-               type="checkbox"
-               checked={completedCount === todos.length}
-               onChange={actions.completeAll} />
+        <span>
+          <input className="toggle-all"
+                 type="checkbox"
+                 checked={completedCount === todos.length}
+                 />
+          <label onClick={actions.completeAll}/>
+        </span>
       )
     }
   }

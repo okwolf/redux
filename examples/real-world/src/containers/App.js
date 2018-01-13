@@ -1,6 +1,9 @@
-import React, { Component, PropTypes } from 'react'
+/* eslint-disable no-undef */
+
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { browserHistory } from 'react-router'
+import { withRouter } from 'react-router-dom'
 import Explore from '../components/Explore'
 import { resetErrorMessage } from '../actions'
 
@@ -20,7 +23,7 @@ class App extends Component {
   }
 
   handleChange = nextValue => {
-    browserHistory.push(`/${nextValue}`)
+    this.props.history.push(`/${nextValue}`)
   }
 
   renderErrorMessage() {
@@ -33,10 +36,9 @@ class App extends Component {
       <p style={{ backgroundColor: '#e99', padding: 10 }}>
         <b>{errorMessage}</b>
         {' '}
-        (<a href="#"
-            onClick={this.handleDismissClick}>
+        <button onClick={this.handleDismissClick}>
           Dismiss
-        </a>)
+        </button>
       </p>
     )
   }
@@ -60,6 +62,6 @@ const mapStateToProps = (state, ownProps) => ({
   inputValue: ownProps.location.pathname.substring(1)
 })
 
-export default connect(mapStateToProps, {
+export default withRouter(connect(mapStateToProps, {
   resetErrorMessage
-})(App)
+})(App))

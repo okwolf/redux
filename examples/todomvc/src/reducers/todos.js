@@ -21,12 +21,12 @@ export default function todos(state = initialState, action) {
   switch (action.type) {
     case ADD_TODO:
       return [
+        ...state,
         {
           id: Math.max(-1, ...state.map(getId)) + 1,
           completed: false,
           text: action.text
-        },
-        ...state
+        }
       ]
 
     case DELETE_TODO:

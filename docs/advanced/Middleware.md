@@ -26,7 +26,7 @@ The most naïve solution is just to log the action and the next state yourself e
 
 >##### Note
 
->If you're using [react-redux](https://github.com/gaearon/react-redux) or similar bindings, you likely won't have direct access to the store instance in your components. For the next few paragraphs, just assume you pass the store down explicitly.
+>If you're using [react-redux](https://github.com/reactjs/react-redux) or similar bindings, you likely won't have direct access to the store instance in your components. For the next few paragraphs, just assume you pass the store down explicitly.
 
 Say, you call this when creating a todo:
 
@@ -170,7 +170,7 @@ function applyMiddlewareByMonkeypatching(store, middlewares) {
 We could use it to apply multiple middleware like this:
 
 ```js
-applyMiddlewareByMonkeypatching(store, [ logger, crashReporter ])
+applyMiddlewareByMonkeypatching(store, [logger, crashReporter])
 ```
 
 However, it is still monkeypatching.  
@@ -250,16 +250,13 @@ Instead of `applyMiddlewareByMonkeypatching()`, we could write `applyMiddleware(
 ```js
 // Warning: Naïve implementation!
 // That's *not* Redux API.
-
 function applyMiddleware(store, middlewares) {
   middlewares = middlewares.slice()
   middlewares.reverse()
-
   let dispatch = store.dispatch
   middlewares.forEach(middleware =>
     dispatch = middleware(store)(dispatch)
   )
-
   return Object.assign({}, store, { dispatch })
 }
 ```
@@ -268,11 +265,15 @@ The implementation of [`applyMiddleware()`](../api/applyMiddleware.md) that ship
 
 * It only exposes a subset of the [store API](../api/Store.md) to the middleware: [`dispatch(action)`](../api/Store.md#dispatch) and [`getState()`](../api/Store.md#getState).
 
-* It does a bit of trickery to make sure that if you call `store.dispatch(action)` from your middleware instead of `next(action)`, the action will actually travel the whole middleware chain again, including the current middleware. This is useful for asynchronous middleware, as we have seen [previously](AsyncActions.md).
+* It does a bit of trickery to make sure that if you call `store.dispatch(action)` from your middleware instead of `next(action)`, the action will actually travel the whole middleware chain again, including the current middleware. This is useful for asynchronous middleware, as we have seen [previously](AsyncActions.md). There is one caveat when calling `dispatch` during setup, described below.
 
 * To ensure that you may only apply middleware once, it operates on `createStore()` rather than on `store` itself. Instead of `(store, middlewares) => store`, its signature is `(...middlewares) => (createStore) => createStore`.
 
 Because it is cumbersome to apply functions to `createStore()` before using it, `createStore()` accepts an optional last argument to specify such functions.
+
+#### Caveat: Dispatching During Setup
+
+While `applyMiddleware` executes and sets up your middleware, the `store.dispatch` function will point to the vanilla version provided by `createStore`. Dispatching would result in no other middleware being applied. If you are expecting an interaction with another middleware during setup, you will probably be disappointed. Because of this unexpected behavior, `applyMiddleware` will throw an error if you try to dispatch an action before the set up completes. Instead, you should either communicate directly with that other middleware via a common object (for an API-calling middleware, this may be your API client object) or waiting until after the middleware is constructed with a callback. 
 
 ### The Final Approach
 
@@ -467,10 +468,9 @@ const readyStatePromise = store => next => action => {
  * `dispatch` will return the return value of the dispatched function.
  */
 const thunk = store => next => action =>
-  typeof action === 'function' ?
-    action(store.dispatch, store.getState) :
-    next(action)
-
+  typeof action === 'function'
+    ? action(store.dispatch, store.getState)
+    : next(action)
 
 // You can use all of them! (It doesn't mean you should.)
 let todoApp = combineReducers(reducers)

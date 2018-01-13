@@ -10,6 +10,8 @@ Before opening an issue, please search the [issue tracker](https://github.com/re
 
 We use the issue tracker to keep track of bugs and improvements to Redux itself, its examples, and the documentation. We encourage you to open issues to discuss improvements, architecture, theory, internal implementation, etc. If a topic has been discussed before, we will ask you to join the previous discussion.
 
+As Redux is stable software, changes to its behavior are very carefully considered. Any pull requests that involve breaking changes should be made against the `next` branch.
+
 ### Getting Help
 
 **For support or usage questions like “how do I do X with Redux” and “my code doesn't work”, please search and ask on [StackOverflow with a Redux tag](http://stackoverflow.com/questions/tagged/redux?sort=votes&pageSize=50) first.**
@@ -62,12 +64,6 @@ npm run build:umd:min
 The result will be in the `dist` folder.
 
 ### Testing and Linting
-
-To run both linting and testing at once, run the following:
-
-```
-npm run check:src
-```
 
 To only run linting:
 
@@ -137,13 +133,12 @@ Redux comes with [official examples](http://redux.js.org/docs/introduction/Examp
 
 When adding a new example, please adhere to the style and format of the existing examples, and try to reuse as much code as possible.  For example, `index.html`, `server.js`, and `webpack.config.js` can typically be reused.
 
-#### Building and Testing the Examples
+#### Testing the Examples
 
-To build and test the official Redux examples, run the following:
+To test the official Redux examples, run the following:
 
 ```
-npm run build:examples
-npm run test:examples
+npm run examples:test
 ```
 
 Not all examples have tests. If you see an example project without tests, you are very welcome to add them in a way consistent with the examples that have tests.

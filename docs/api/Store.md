@@ -63,7 +63,7 @@ To learn how to describe asynchronous API calls, read the current state inside a
 
 ```js
 import { createStore } from 'redux'
-let store = createStore(todos, [ 'Use Redux' ])
+let store = createStore(todos, ['Use Redux'])
 
 function addTodo(text) {
   return {
@@ -113,9 +113,14 @@ let currentValue
 function handleChange() {
   let previousValue = currentValue
   currentValue = select(store.getState())
-  
+
   if (previousValue !== currentValue) {
-    console.log('Some deep nested property changed from', previousValue, 'to', currentValue)
+    console.log(
+      'Some deep nested property changed from',
+      previousValue,
+      'to',
+      currentValue
+    )
   }
 }
 
@@ -133,4 +138,4 @@ It is an advanced API. You might need this if your app implements code splitting
 
 #### Arguments
 
-1. `reducer` (*Function*) The next reducer for the store to use.
+1. `nextReducer` (*Function*) The next reducer for the store to use.

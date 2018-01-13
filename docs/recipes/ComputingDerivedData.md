@@ -24,15 +24,15 @@ const getVisibleTodos = (todos, filter) => {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     todos: getVisibleTodos(state.todos, state.visibilityFilter)
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
-    onTodoClick: (id) => {
+    onTodoClick: id => {
       dispatch(toggleTodo(id))
     }
   }
@@ -52,7 +52,7 @@ In the above example, `mapStateToProps` calls `getVisibleTodos` to calculate `to
 
 We would like to replace `getVisibleTodos` with a memoized selector that recalculates `todos` when the value of `state.todos` or `state.visibilityFilter` changes, but not when changes occur in other (unrelated) parts of the state tree.
 
-Reselect provides a function `createSelector` for creating memoized selectors. `createSelector` takes an array of input-selectors and a transform function as its arguments. If the Redux state tree is mutated in a way that causes the value of an input-selector to change, the selector will call its transform function with the values of the input-selectors as arguments and return the result. If the values of the input-selectors are the same as the previous call to the selector, it will return the previously computed value instead of calling the transform function.
+Reselect provides a function `createSelector` for creating memoized selectors. `createSelector` takes an array of input-selectors and a transform function as its arguments. If the Redux state tree is changed in a way that causes the value of an input-selector to change, the selector will call its transform function with the values of the input-selectors as arguments and return the result. If the values of the input-selectors are the same as the previous call to the selector, it will return the previously computed value instead of calling the transform function.
 
 Let's define a memoized selector named `getVisibleTodos` to replace the non-memoized version above:
 
@@ -61,11 +61,11 @@ Let's define a memoized selector named `getVisibleTodos` to replace the non-memo
 ```js
 import { createSelector } from 'reselect'
 
-const getVisibilityFilter = (state) => state.visibilityFilter
-const getTodos = (state) => state.todos
+const getVisibilityFilter = state => state.visibilityFilter
+const getTodos = state => state.todos
 
 export const getVisibleTodos = createSelector(
-  [ getVisibilityFilter, getTodos ],
+  [getVisibilityFilter, getTodos],
   (visibilityFilter, todos) => {
     switch (visibilityFilter) {
       case 'SHOW_ALL':
@@ -86,13 +86,12 @@ In the example above, `getVisibilityFilter` and `getTodos` are input-selectors. 
 A memoized selector can itself be an input-selector to another memoized selector. Here is `getVisibleTodos` being used as an input-selector to a selector that further filters the todos by keyword:
 
 ```js
-const getKeyword = (state) => state.keyword
+const getKeyword = state => state.keyword
 
 const getVisibleTodosFilteredByKeyword = createSelector(
-  [ getVisibleTodos, getKeyword ],
-  (visibleTodos, keyword) => visibleTodos.filter(
-    todo => todo.text.indexOf(keyword) > -1
-  )
+  [getVisibleTodos, getKeyword],
+  (visibleTodos, keyword) =>
+    visibleTodos.filter(todo => todo.text.indexOf(keyword) > -1)
 )
 ```
 
@@ -108,15 +107,15 @@ import { toggleTodo } from '../actions'
 import TodoList from '../components/TodoList'
 import { getVisibleTodos } from '../selectors'
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     todos: getVisibleTodos(state)
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
-    onTodoClick: (id) => {
+    onTodoClick: id => {
       dispatch(toggleTodo(id))
     }
   }
@@ -165,11 +164,10 @@ import { createSelector } from 'reselect'
 const getVisibilityFilter = (state, props) =>
   state.todoLists[props.listId].visibilityFilter
 
-const getTodos = (state, props) =>
-  state.todoLists[props.listId].todos
+const getTodos = (state, props) => state.todoLists[props.listId].todos
 
 const getVisibleTodos = createSelector(
-  [ getVisibilityFilter, getTodos ],
+  [getVisibilityFilter, getTodos],
   (visibilityFilter, todos) => {
     switch (visibilityFilter) {
       case 'SHOW_COMPLETED':
@@ -216,9 +214,9 @@ const mapStateToProps = (state, props) => {
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
-    onTodoClick: (id) => {
+    onTodoClick: id => {
       dispatch(toggleTodo(id))
     }
   }
@@ -250,12 +248,11 @@ import { createSelector } from 'reselect'
 const getVisibilityFilter = (state, props) =>
   state.todoLists[props.listId].visibilityFilter
 
-const getTodos = (state, props) =>
-  state.todoLists[props.listId].todos
+const getTodos = (state, props) => state.todoLists[props.listId].todos
 
 const makeGetVisibleTodos = () => {
   return createSelector(
-    [ getVisibilityFilter, getTodos ],
+    [getVisibilityFilter, getTodos],
     (visibilityFilter, todos) => {
       switch (visibilityFilter) {
         case 'SHOW_COMPLETED':
@@ -310,9 +307,9 @@ const makeMapStateToProps = () => {
   return mapStateToProps
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
-    onTodoClick: (id) => {
+    onTodoClick: id => {
       dispatch(toggleTodo(id))
     }
   }

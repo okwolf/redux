@@ -47,7 +47,7 @@ We'll use separate types in this tutorial.
 
 Let's start by defining the several synchronous action types and action creators we need in our example app. Here, the user can select a subreddit to display:
 
-#### `actions.js`
+#### `actions.js` (Synchronous)
 
 ```js
 export const SELECT_SUBREDDIT = 'SELECT_SUBREDDIT'
@@ -215,8 +215,10 @@ Before going into the details of dispatching actions together with network reque
 ```js
 import { combineReducers } from 'redux'
 import {
-  SELECT_SUBREDDIT, INVALIDATE_SUBREDDIT,
-  REQUEST_POSTS, RECEIVE_POSTS
+  SELECT_SUBREDDIT,
+  INVALIDATE_SUBREDDIT,
+  REQUEST_POSTS,
+  RECEIVE_POSTS
 } from '../actions'
 
 function selectedSubreddit(state = 'reactjs', action) {
@@ -228,11 +230,14 @@ function selectedSubreddit(state = 'reactjs', action) {
   }
 }
 
-function posts(state = {
-  isFetching: false,
-  didInvalidate: false,
-  items: []
-}, action) {
+function posts(
+  state = {
+    isFetching: false,
+    didInvalidate: false,
+    items: []
+  },
+  action
+) {
   switch (action.type) {
     case INVALIDATE_SUBREDDIT:
       return Object.assign({}, state, {
@@ -304,10 +309,10 @@ When an action creator returns a function, that function will get executed by th
 
 We can still define these special thunk action creators inside our `actions.js` file:
 
-#### `actions.js`
+#### `actions.js` (Asynchronous)
 
 ```js
-import fetch from 'isomorphic-fetch'
+import fetch from 'cross-fetch'
 
 export const REQUEST_POSTS = 'REQUEST_POSTS'
 function requestPosts(subreddit) {
@@ -327,18 +332,24 @@ function receivePosts(subreddit, json) {
   }
 }
 
+export const INVALIDATE_SUBREDDIT = 'INVALIDATE_SUBREDDIT'
+export function invalidateSubreddit(subreddit) {
+  return {
+    type: INVALIDATE_SUBREDDIT,
+    subreddit
+  }
+}
+
 // Meet our first thunk action creator!
 // Though its insides are different, you would use it just like any other action creator:
 // store.dispatch(fetchPosts('reactjs'))
 
 export function fetchPosts(subreddit) {
-
   // Thunk middleware knows how to handle functions.
   // It passes the dispatch method as an argument to the function,
   // thus making it able to dispatch actions itself.
 
   return function (dispatch) {
-
     // First dispatch: the app state is updated to inform
     // that the API call is starting.
 
@@ -353,15 +364,13 @@ export function fetchPosts(subreddit) {
     return fetch(`https://www.reddit.com/r/${subreddit}.json`)
       .then(
         response => response.json(),
-        
         // Do not use catch, because that will also catch
         // any errors in the dispatch and resulting render,
-        // causing an loop of 'Unexpected batch number' errors.
+        // causing a loop of 'Unexpected batch number' errors.
         // https://github.com/facebook/react/issues/6895
-        error => console.log('An error occured.', error)
+        error => console.log('An error occurred.', error)
       )
       .then(json =>
-
         // We can dispatch many times!
         // Here, we update the app state with the results of the API call.
 
@@ -373,11 +382,11 @@ export function fetchPosts(subreddit) {
 
 >##### Note on `fetch`
 
->We use [`fetch` API](https://developer.mozilla.org/en/docs/Web/API/Fetch_API) in the examples. It is a new API for making network requests that replaces `XMLHttpRequest` for most common needs. Because most browsers don't yet support it natively, we suggest that you use [`isomorphic-fetch`](https://github.com/matthew-andrews/isomorphic-fetch) library:
+>We use [`fetch` API](https://developer.mozilla.org/en/docs/Web/API/Fetch_API) in the examples. It is a new API for making network requests that replaces `XMLHttpRequest` for most common needs. Because most browsers don't yet support it natively, we suggest that you use [`cross-fetch`](https://github.com/lquixada/cross-fetch) library:
 
 >```js
 >// Do this in every file where you use `fetch`
->import fetch from 'isomorphic-fetch'
+>import fetch from 'cross-fetch'
 >```
 
 >Internally, it uses [`whatwg-fetch` polyfill](https://github.com/github/fetch) on the client, and [`node-fetch`](https://github.com/bitinn/node-fetch) on the server, so you won't need to change API calls if you change your app to be [universal](https://medium.com/@mjackson/universal-javascript-4761051b7ae9).
@@ -411,17 +420,17 @@ const store = createStore(
 )
 
 store.dispatch(selectSubreddit('reactjs'))
-store.dispatch(fetchPosts('reactjs')).then(() =>
-  console.log(store.getState())
-)
+store
+  .dispatch(fetchPosts('reactjs'))
+  .then(() => console.log(store.getState()))
 ```
 
 The nice thing about thunks is that they can dispatch results of each other:
 
-#### `actions.js`
+#### `actions.js` (with `fetch`)
 
 ```js
-import fetch from 'isomorphic-fetch'
+import fetch from 'cross-fetch'
 
 export const REQUEST_POSTS = 'REQUEST_POSTS'
 function requestPosts(subreddit) {
@@ -438,6 +447,14 @@ function receivePosts(subreddit, json) {
     subreddit,
     posts: json.data.children.map(child => child.data),
     receivedAt: Date.now()
+  }
+}
+
+export const INVALIDATE_SUBREDDIT = 'INVALIDATE_SUBREDDIT'
+export function invalidateSubreddit(subreddit) {
+  return {
+    type: INVALIDATE_SUBREDDIT,
+    subreddit
   }
 }
 
@@ -462,7 +479,6 @@ function shouldFetchPosts(state, subreddit) {
 }
 
 export function fetchPostsIfNeeded(subreddit) {
-
   // Note that the function also receives getState()
   // which lets you choose what to dispatch next.
 
@@ -486,9 +502,9 @@ This lets us write more sophisticated async control flow gradually, while the co
 #### `index.js`
 
 ```js
-store.dispatch(fetchPostsIfNeeded('reactjs')).then(() =>
-  console.log(store.getState())
-)
+store
+  .dispatch(fetchPostsIfNeeded('reactjs'))
+  .then(() => console.log(store.getState()))
 ```
 
 >##### Note about Server Rendering
